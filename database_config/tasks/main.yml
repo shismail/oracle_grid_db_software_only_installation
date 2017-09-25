@@ -1,0 +1,59 @@
+- name: create silent listener config file
+  template:
+    src=roles/database_common/templates/oracle/silent_listener_config_rsp.j2 
+    dest="{{ silent_listener_config_file }}"
+    owner="{{ oracle_install_user }}"
+    group="{{ oracle_install_group }}"
+    mode=0644
+  register: silent_listener_config_file_created
+  
+- name: create silent database config file
+  template:
+    src=roles/database_common/templates/oracle/silent_database_config_rsp.j2 
+    dest="{{ silent_database_config_file }}"
+    owner="{{ oracle_install_user }}"
+    group="{{ oracle_install_group }}"
+    mode=0644
+  register: silent_database_config_file_created
+ 
+- name: configure listener
+  shell: /bin/su - "{{ oracle_install_user }}" -c "{{ net_creation_assistent }} -silent -responsefile {{ silent_listener_config_file }}"
+    creates="{{ listener_ora }}"
+  when: silent_listener_config_file_created|success
+ 
+- name: configure oracle database
+  shell: /bin/su - "{{ oracle_install_user }}" -c "{{ database_creation_assistent }} -silent -createDatabase -responseFile {{ silent_database_config_file }}"
+    creates="{{ sp_file }}"
+  when: silent_database_config_file_created|success
+ 
+- name: create scripts directory
+  file:
+    path="{{ scripts_directory }}"
+    state=directory
+    owner="{{ oracle_install_user }}"
+    group="{{ oracle_install_group }}"
+    mode=0755
+    
+- name: create has script
+  template:
+    src=roles/database_common/templates/oracle/has_service.j2
+    dest="{{ has_service }}"
+    owner="{{ oracle_install_user }}"
+    group="{{ oracle_install_group }}"
+    mode=0744
+    
+- name: create database script
+  template:
+    src=roles/database_common/templates/oracle/database_service.j2 
+    dest="{{ database_service }}"
+    owner="{{ oracle_install_user }}"
+    group="{{ oracle_install_group }}"
+    mode=0744
+    
+- name: copy scripts
+  copy: 
+    src=roles/database_common/files/oracle/lifecycle/
+    dest="{{ scripts_directory }}"
+    owner="{{ oracle_install_user }}"
+    group="{{ oracle_install_group }}"
+    mode=0744

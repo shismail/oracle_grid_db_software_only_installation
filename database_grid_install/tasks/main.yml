@@ -1,0 +1,45 @@
+- name: create root directory
+  file:
+    path={{ root_directory }}
+    state=directory
+    owner="{{ oracle_install_user }}"
+    group="{{ oracle_install_group }}"
+    mode=0755
+    
+- name: create grid directories
+  file:
+    path={{ item }}
+    state=directory
+    owner="{{ oracle_install_user }}"
+    group="{{ oracle_install_group }}"
+    mode=0755
+  with_items:
+    - "{{ grid_base_directory }}"
+    - "{{ grid_home }}"
+    
+- name: create silent grid install file
+  template:
+    src=roles/database_common/templates/oracle/silent_grid_install_rsp.j2 
+    dest="{{ silent_grid_install_file }}"
+    owner="{{ oracle_install_user }}"
+    group="{{ oracle_install_group }}"
+    mode=0644
+  register: silent_grid_install_file_created
+    
+- name: install oracle grid infrastructure
+  shell: /bin/su - "{{ oracle_install_user }}" -c "{{ run_grid_installer }} -silent -ignorePrereq -waitforcompletion -responseFile {{ silent_grid_install_file }}"
+    creates="{{ roothas_sh }}"
+  when: silent_grid_install_file_created|success
+  ignore_errors: True
+ 
+- name: run orainstRoot.sh
+  shell: /bin/sh "{{ orainst_root_sh }}"
+ 
+- name: run root.sh
+  shell: /bin/sh "{{ grid_root_sh }}"
+    
+- name: configure oracle restart run roothas.pl
+  shell: "{{ grid_home }}/perl/bin/perl -I {{ grid_home }}/perl/lib -I {{ grid_home }}/crs/install {{ roothas_sh }}"
+    
+- name: configure oracle restart update node list
+  shell: /bin/su - "{{ oracle_install_user }}" -c "{{ grid_home }}/oui/bin/runInstaller -updateNodeList ORACLE_HOME={{ grid_home }} -defaultHomeName CLUSTER_NODES= CRS=TRUE"

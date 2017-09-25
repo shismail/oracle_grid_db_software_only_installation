@@ -1,0 +1,13 @@
+- hosts: database_server
+  user: root
+
+  roles:
+    - database_common
+    - database_host
+    - database_grid_install
+    #- database_install
+    #- database_config
+
+- name: testing
+  roles:
+     - hello

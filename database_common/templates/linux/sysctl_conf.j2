@@ -1,0 +1,46 @@
+# System default settings live in /usr/lib/sysctl.d/00-system.conf.
+# To override those settings, enter new settings here, or in an /etc/sysctl.d/<name>.conf file
+#
+# For more information, see sysctl.conf(5) and sysctl.d(5).
+#***************************************************************************************************************#
+#                                                                                                               #
+#kernel.shmall = physical RAM size / pagesize For most systems, this will be the value 2097152.                 #
+#                       See Note 301830.1 for more information.                                                 #
+#kernel.shmmax = 1/2 of physical RAM. This would be the value 2147483648 for a system with 4GB of physical RAM. #
+#                           See Note:567506.1 for more information.                                             #
+#kernel.shmmni = 4096                                                                                           #
+#kernel.sem = 250 32000 100 128                                                                                 #
+#fs.file-max = 512 x processes (for example 6815744 for 13312 processes)                                        #
+#fs.aio-max-nr = 1048576                                                                                        #
+#net.ipv4.ip_local_port_range = 9000 65500                                                                      #
+#net.core.rmem_default = 262144                                                                                 #
+#net.core.rmem_max = 4194304                                                                                    #
+#net.core.wmem_default = 262144                                                                                 #
+#net.core.wmem_max = 1048576                                                                                    #
+#                                                                                                               #
+# Ref:ID 1441282.1                                                                                              #
+#***************************************************************************************************************#
+# Recommended value for kernel.sem
+kernel.sem = 250        32000   100     128
+# Recommended value for kernel.shmmax
+kernel.shmmax = 231928233984
+#kernel.shmmax = 189010946560
+# Recommended value for kernel.shmmni
+kernel.shmmni = 4096
+# Recommended value for kernel.shmall
+kernel.shmall = 11813184160
+# Recommended value for fs.file-max
+fs.file-max = 6815744
+# Recommended value for net.ipv4.ip_local_port_range
+# Recommended value for net.core.rmem_default
+net.core.rmem_default = 262144
+# Recommended value for net.core.rmem_max
+net.core.rmem_max = 4194304
+# Recommended value for net.core.wmem_default
+net.core.wmem_default = 262144
+# Recommended value for net.core.wmem_max
+net.core.wmem_max = 1048576
+# Recommended value for fs.aio-max-nr
+fs.aio-max-nr = 1048576
+net.ipv4.ip_local_port_range = 9000 65535
+vm.nr_hugepages=81408

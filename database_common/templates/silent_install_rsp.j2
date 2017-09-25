@@ -1,0 +1,30 @@
+    ...
+    #-------------------------------------------------------------------------------
+    # Specify the installation option.
+    # It can be one of the following:
+    #   - INSTALL_DB_SWONLY
+    #   - INSTALL_DB_AND_CONFIG
+    #   - UPGRADE_DB
+    #-------------------------------------------------------------------------------
+    oracle.install.option={{ oracle_install_option }}
+
+    #-------------------------------------------------------------------------------
+    # Specify the hostname of the system as set during the install. It can be used
+    # to force the installation to use an alternative hostname rather than using the
+    # first hostname found on the system. (e.g., for systems with multiple hostnames
+    # and network interfaces)
+    #-------------------------------------------------------------------------------
+    ORACLE_HOSTNAME={{ ansible_fqdn }}
+
+    #-------------------------------------------------------------------------------
+    # Specify the Unix group to be set for the inventory directory.
+    #-------------------------------------------------------------------------------
+    UNIX_GROUP_NAME={{ oracle_install_group }}
+
+    #-------------------------------------------------------------------------------
+    # Specify the location which holds the inventory files.
+    # This is an optional parameter if installing on
+    # Windows based Operating System.
+    #-------------------------------------------------------------------------------
+    INVENTORY_LOCATION={{ oracle_inventory_home }}
+    ...

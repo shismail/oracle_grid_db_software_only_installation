@@ -1,0 +1,38 @@
+- name: create root directory
+  file:
+    path={{ root_directory }}
+    state=directory
+    owner="{{ oracle_install_user }}"
+    group="{{ oracle_install_group }}"
+    mode=0755
+    
+- name: create oracle home
+  file:
+    path={{ oracle_home }}
+    state=directory
+    owner="{{ oracle_install_user }}"
+    group="{{ oracle_install_group }}"
+    mode=0755
+    
+- name: create silent install file
+  template:
+    src=roles/database_common/templates/oracle/silent_install_rsp.j2 
+    dest="{{ silent_install_file }}"
+    owner="{{ oracle_install_user }}"
+    group="{{ oracle_install_group }}"
+    mode=0644
+  register: silent_install_file_created
+    
+- name: install oracle database
+  shell: /bin/su - "{{ oracle_install_user }}" -c "{{ run_installer }} -silent -ignorePrereq -waitforcompletion -responseFile {{ silent_install_file }}"
+    creates="{{ database_creation_assistent }}"
+  when: silent_install_file_created|success
+  ignore_errors: True
+ 
+- name: run orainstRoot.sh
+  shell: /bin/sh "{{ orainst_root_sh }}"
+ 
+- name: run root.sh
+  shell: /bin/sh "{{ root_sh }}"
+
+
