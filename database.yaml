@@ -8,7 +8,3 @@
     #- database_install
     #- database_config
 
-- name: testing
-  roles:
-     - hello
-     - hai
