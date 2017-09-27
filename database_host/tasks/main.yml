@@ -58,16 +58,16 @@
       mode: 0750
 
 - name: Download RPM-GPG-KEY-oracle-ol7
-    get_url:
-      url: http://public-yum.oracle.com/RPM-GPG-KEY-oracle-ol7
-      dest: /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
-      mode: 0750
+  get_url:
+    url: http://public-yum.oracle.com/RPM-GPG-KEY-oracle-ol7
+    dest: /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+    mode: 0750
 
 - name: install pre-reqs
-    yum:
-      name: "oracle-rdbms-server-12cR1-preinstall"
-      state: present
-    when: ansible_os_family == 'RedHat' and ansible_distribution_major_version == '7'
+  yum:
+    name: oracle-rdbms-server-12cR1-preinstall
+    state: present
+
 
 - name: User | Add group(s)
   group:
