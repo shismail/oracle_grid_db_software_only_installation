@@ -13,12 +13,12 @@
     enabled=no
   when: ansible_os_family == 'RedHat' and ansible_distribution_major_version == '6'
 
-- name: disable firewalld
-  service:
-    name=firewalld
-    state=stopped
-    enabled=no
-  when: ansible_os_family == 'RedHat' and ansible_distribution_major_version == '7'
+#- name: disable firewalld
+#  service:
+#    name=firewalld
+#    state=stopped
+#    enabled=no
+#  when: ansible_os_family == 'RedHat' and ansible_distribution_major_version == '7'
 
 - name: install packages linux 6
   yum:
@@ -48,59 +48,60 @@
     - sysstat
   when: ansible_os_family == 'RedHat' and ansible_distribution_major_version == '6'
 
-- name: Install wget package (RedHat based)
-    action: yum name='wget' state=installed
+- name: Install wget package
+  action: yum name='wget' state=installed
 
 - name: Download public-yum-el7.repo
-     get_url:
-       url: http://public-yum.oracle.com/public-yum-el7.repo
-       dest:/etc/yum.repos.d/public-yum-el7.repo
-       mode: 0750
+    get_url:
+      url: http://public-yum.oracle.com/public-yum-ol7.repo
+      dest: /etc/yum.repos.d/public-yum-el7.repo
+      mode: 0750
 
 - name: Download RPM-GPG-KEY-oracle-ol7
-      get_url:
-        url: http://public-yum.oracle.com/RPM-GPG-KEY-oracle-ol7
-        dest:/etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
-        mode: 0750
-       when: ansible_os_family == 'RedHat' and ansible_distribution_major_version == '7'
+    get_url:
+      url: http://public-yum.oracle.com/RPM-GPG-KEY-oracle-ol7
+      dest: /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+      mode: 0750
 
-- name: create group
+- name: install pre-reqs
+    yum:
+      name: "oracle-rdbms-server-12cR1-preinstall"
+      state: present
+    when: ansible_os_family == 'RedHat' and ansible_distribution_major_version == '7'
+
+- name: User | Add group(s)
   group:
-    name={{ oracle_install_group }}
-    gid={{ oracle_install_group_id }}
+    name={{ item.group }}
+    gid={{ item.gid }}
     state=present
+  with_items:
+    - { group: asmdba, gid: 54318 }
+    - { group: asmoper, gid: 54319 }
+    - { group: asmadmin, gid: 54320 }
+    - { group: oinstall, gid: 54321 }
+    - { group: dba, gid: 54322 }
+    - { group: backupdba, gid: 54323 }
+    - { group: oper, gid: 54324 }
+    - { group: dgdba, gid: 54325 }
+    - { group: kmdba, gid: 54326 }
+    -  {group: ansible, gid: 1001}
+
 
 - name: create user
-  user:
-    name={{ oracle_install_user }}
-    state=present
-    createhome=yes
-    group={{ oracle_install_group_id }}
-    password={{ oracle_install_password }}
+  user: name={{ item.username }}  group={{ item.primgroup }} groups={{ item.othergroups }} uid={{ item.uid }}  state=present password={{ oracle_install_password }}
+  with_items:
+    - { username: oracle, uid: 54321, primgroup: oinstall, othergroups: "dba,asmdba,backupdba,dgdba,kmdba,oper,asmadmin,asmdba,asmoper,dba" }
 
 - template:
-    src=roles/database_common/templates/linux/sysctl_conf.j2
+    src=database_common/templates/linux/sysctl_conf.j2
     dest=/etc/sysctl.conf
     owner=root
     group=root
     mode=0644
 
 - template:
-    src=roles/database_common/templates/linux/limits_conf.j2
+    src=database_common/templates/linux/limits_conf.j2
     dest=/etc/security/limits.conf
     owner=root
     group=root
     mode=0644
-
-- name:  User | Add group(s)
-  group: name={{ item.group }} gid={{ item.gid }} state=present
-    with_items: "{{oracle_groups}}"
-    tags:
-     - group
-
-- name: User | Add Oracle user
-  user: name={{ item.username }}  group={{ item.primgroup }} groups={{ item.othergroups }} uid={{ item.uid }} generate_ssh_key=yes append=yes state=present password={{ item.passwd }}
-    with_items: "{{oracle_users}}"
-    tags:
-    - user
-

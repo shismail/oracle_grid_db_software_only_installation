@@ -5,6 +5,7 @@
     owner="{{ oracle_install_user }}"
     group="{{ oracle_install_group }}"
     mode=0755
+    recurse=yes
     
 - name: create grid directories
   file:
@@ -13,21 +14,34 @@
     owner="{{ oracle_install_user }}"
     group="{{ oracle_install_group }}"
     mode=0755
+    recurse=yes
   with_items:
     - "{{ grid_base_directory }}"
     - "{{ grid_home }}"
     
 - name: create silent grid install file
   template:
-    src=roles/database_common/templates/oracle/silent_grid_install_rsp.j2 
+    src=database_common/templates/oracle/silent_grid_install_rsp.j2 
     dest="{{ silent_grid_install_file }}"
     owner="{{ oracle_install_user }}"
     group="{{ oracle_install_group }}"
     mode=0644
   register: silent_grid_install_file_created
-    
+
+- name: Copy installer files
+  copy: src={{ software_directory }}/{{ item }} dest='{{ software_directory }}/'
+  with_items: 
+       - linuxamd64_12102_grid_1of2.zip
+       - linuxamd64_12102_grid_2of2.zip
+
+- name: Extract installation files
+  command: 'unzip {{ software_directory }}/{{ item }} -d {{ software_directory }}/'
+  with_items: 
+       - linuxamd64_12102_grid_1of2.zip
+       - linuxamd64_12102_grid_2of2.zip
+ 
 - name: install oracle grid infrastructure
-  shell: /bin/su - "{{ oracle_install_user }}" -c "{{ run_grid_installer }} -silent -ignorePrereq -waitforcompletion -responseFile {{ silent_grid_install_file }}"
+  shell: /bin/su - "{{ oracle_install_user }}" -c "{{ run_grid_installer }} -silent -ignorePrereq -waitforcompletion -ignoreSysPrereqs -showProgress -responseFile {{ silent_grid_install_file }}"
     creates="{{ roothas_sh }}"
   when: silent_grid_install_file_created|success
   ignore_errors: True

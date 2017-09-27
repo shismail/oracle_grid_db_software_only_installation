@@ -1,114 +1,95 @@
-1.	##### User and group settings #####
-2.	# User and Group under which the software needs to be installed
-3.	oracle_install_user:             "oracle"
-4.	oracle_install_password:         "Diamond123"
-5.	oracle_install_group:            "oinstall"
-6.	oracle_install_group_id:         "54321"
-7.
-8.
-9.	##### OS settings #####
-10.	# number of open files
-11.	number_of_open_files:            65536
-12.
-13.	# number of processes
-14.	number_of_processes:             16384
-15.
-16.	# stack size
-17.	stack_size:                      10240
-18.
-19.	# memory that will be used for huge pages
-20.	memory_to_reserve_in_mega_bytes: 256
-21.
-22.	number_of_huge_pages:            "{{ memory_to_reserve_in_mega_bytes // 2 }}"
-23.	mem_lock:                        "{{ 2048 * (memory_to_reserve_in_mega_bytes // 2) }}"
-24.
-25.
-26.	##### database directories #####
-27.
-28.	# Directory where the software to be installed is located
-29.	software_directory:              "/mnt/hgfs/vmware_temp/database"
-30.	# The scripts create files that are placed in this directory
-31.	temporary_directory:             "/mnt/hgfs/vmware_temp/files"
-32.	# root directory
-33.	root_directory:                  "/u01"
-34.	# Scripts directory
-35.	scripts_directory:               "{{ root_directory }}/app/scripts"
-36.	# Location of the Oracle inventory
-37.	oracle_inventory_home:           "{{ root_directory }}/app/oraInventory"
-38.	# Base directory
-39.	base_directory:                  "{{ root_directory }}/app/oracle"
-40.	# Oracle home
-41.	oracle_home:                     "{{ base_directory }}/product/12.1.0/dbhome"
-42.
-43.
-44.	##### grid directories #####
-45.
-46.	# Directory where the software to be installed is located
-47.	grid_software_directory:         "/mnt/hgfs/vmware_temp/grid"
-48.	# Grid base directory
-49.	grid_base_directory:             "{{ root_directory }}/app/grid"
-50.	# Oracle Grid Infrastrucuture home
-51.	grid_home:                       "{{ root_directory }}/app/12.1.0/grid"
-52.
-53.
-54.	##### install options #####
-55.	oracle_install_option:           "INSTALL_DB_SWONLY"
-56.	grid_install_option:             "CRS_SWONLY"
-57.
-58.
-59.	##### configuration options #####
-60.	template_name:                   "General_Purpose.dbc"
-61.	global_database_name:            "orcl12"
-62.	database_sid:                    "orcl12"
-63.	sys_password:                    "Password12c"
-64.	system_password:                 "Password12c"
-65.	em_configuration:                "NONE"
-66.	database_config_type:            "SI"
-67.	storage_type:                    "FS"
-68.	disk_group_name:                 "DATA"
-69.	recovery_group_name:             "RECOVERY"
-70.	policy_managed:                  "FALSE"
-71.	create_server_pool:              "FALSE"
-72.	character_set:                   "AL32UTF8"
-73.	sample_schema:                   "FALSE"
-74.	memory_percentage:               40
-75.	automatic_memory_management:     "TRUE"
-76.	database_type:                   "OLTP"
-77.	listener_name:                   "orcl12_listener"
-78.
-79.
-80.	##### files #####
-81.	silent_install_file:             "{{ temporary_directory }}/silent-install.rsp"
-82.	silent_grid_install_file:        "{{ temporary_directory }}/silent-grid-install.rsp"
-83.	silent_listener_config_file:     "{{ temporary_directory }}/silent-listener-config.rsp"
-84.	silent_database_config_file:     "{{ temporary_directory }}/silent-database-config.rsp"
-85.	run_installer:                   "{{ software_directory }}/runInstaller"
-86.	run_grid_installer:              "{{ grid_software_directory }}/runInstaller"
-87.	net_creation_assistent:          "{{ oracle_home }}/bin/netca"
-88.	database_creation_assistent:     "{{ oracle_home }}/bin/dbca"
-89.	orainst_root_sh:                 "{{ oracle_inventory_home }}/orainstRoot.sh"
-90.	root_sh:                         "{{ oracle_home }}/root.sh"
-91.	grid_root_sh:                    "{{ grid_home }}/root.sh"
-92.	roothas_sh:                      "{{ grid_home }}/crs/install/roothas.pl"
-93.	listener_ora:                    "{{ oracle_home }}/network/admin/listener.ora"
-94.	sp_file:                         "{{ oracle_home }}/dbs/spfile{{ database_sid }}.ora"
-95.	has_service:                     "{{ scripts_directory }}/has_service"
-96.	database_service:                "{{ scripts_directory }}/database_service"
-# Users & groups
-  oracle_groups:
-    - { group: asmdba, gid: 54318 }
-    - { group: asmoper, gid: 54319 }
-    - { group: asmadmin, gid: 54320 }
-    - { group: oinstall, gid: 54321 }
-    - { group: dba, gid: 54322 }
-    - { group: backupdba, gid: 54323 }
-    - { group: oper, gid: 54324 }
-    - { group: dgdba, gid: 54325 }
-    - { group: kmdba, gid: 54326 }
-    -  {group: ansible, gid: 1001}
+##### User and group settings #####
+# User and Group under which the software needs to be installed
+oracle_install_user:             "oracle"
+oracle_install_password:         "Diamond123"
+oracle_install_group:            "oinstall"
+oracle_install_group_id:         "54321"
+##### OS settings #####
+# number of open files
+number_of_open_files:            65536
+
+# number of processes
+number_of_processes:             16384
+
+# stack size
+stack_size:                      10240
+
+# memory that will be used for huge pages
+memory_to_reserve_in_mega_bytes: 256
+
+number_of_huge_pages:            "{{ memory_to_reserve_in_mega_bytes // 2 }}"
+mem_lock:                        "{{ 2048 * (memory_to_reserve_in_mega_bytes // 2) }}"
 
 
-  oracle_users:         # Passwd :Oracle123
-   - { username: oracle, uid: 54321, primgroup: oinstall, othergroups: "dba,asmdba,backupdba,dgdba,kmdba,oper", passwd: "Diamond123" }
-  grid_users:
-   - { username: grid, uid: 54320, primgroup: oinstall, othergroups: "asmadmin,asmdba,asmoper,dba", passwd: "Diamond123" }
+##### database directories #####
+
+# Directory where the software to be installed is located
+software_directory: /vagrant/stage
+# The scripts create files that are placed in this directory
+temporary_directory: /vagrant/stage/files
+# root directory
+root_directory:                  "/u01"
+# Scripts directory
+scripts_directory:               "{{ root_directory }}/app/scripts"
+# Location of the Oracle inventory
+oracle_inventory_home:           "{{ root_directory }}/app/oraInventory"
+# Base directory
+base_directory:                  "{{ root_directory }}/app/oracle"
+# Oracle home
+oracle_home:                     "{{ base_directory }}/product/12.1.0/dbhome"
+
+
+##### grid directories #####
+
+# Directory where the software to be installed is located
+grid_software_directory: /u01/stage
+# Grid base directory
+grid_base_directory:             "{{ root_directory }}/app/grid"
+# Oracle Grid Infrastrucuture home
+grid_home:                       "{{ root_directory }}/app/12.1.0/grid"
+
+
+##### install options #####
+oracle_install_option:           "INSTALL_DB_SWONLY"
+grid_install_option:             "CRS_SWONLY"
+
+
+##### configuration options #####
+template_name:                   "General_Purpose.dbc"
+global_database_name:            "orcl12"
+database_sid:                    "orcl12"
+sys_password:                    "Password12c"
+system_password:                 "Password12c"
+em_configuration:                "NONE"
+database_config_type:            "SI"
+storage_type:                    "FS"
+disk_group_name:                 "DATA"
+recovery_group_name:             "RECOVERY"
+policy_managed:                  "FALSE"
+create_server_pool:              "FALSE"
+character_set:                   "AL32UTF8"
+sample_schema:                   "FALSE"
+memory_percentage:               40
+automatic_memory_management:     "TRUE"
+database_type:                   "OLTP"
+listener_name:                   "orcl12_listener"
+
+
+##### files #####
+silent_install_file:             "{{ temporary_directory }}/silent-install.rsp"
+silent_grid_install_file:        "{{ temporary_directory }}/silent-grid-install.rsp"
+silent_listener_config_file:     "{{ temporary_directory }}/silent-listener-config.rsp"
+silent_database_config_file:     "{{ temporary_directory }}/silent-database-config.rsp"
+run_installer:                   "{{ software_directory }}/runInstaller"
+run_grid_installer:              "{{ software_directory }}/grid/runInstaller"
+net_creation_assistent:          "{{ oracle_home }}/bin/netca"
+database_creation_assistent:     "{{ oracle_home }}/bin/dbca"
+orainst_root_sh:                 "{{ oracle_inventory_home }}/orainstRoot.sh"
+root_sh:                         "{{ oracle_home }}/root.sh"
+grid_root_sh:                    "{{ grid_home }}/root.sh"
+roothas_sh:                      "{{ grid_home }}/crs/install/roothas.pl"
+listener_ora:                    "{{ oracle_home }}/network/admin/listener.ora"
+sp_file:                         "{{ oracle_home }}/dbs/spfile{{ database_sid }}.ora"
+has_service:                     "{{ scripts_directory }}/has_service"
+database_service:                "{{ scripts_directory }}/database_service"
+

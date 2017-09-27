@@ -34,5 +34,3 @@
  
 - name: run root.sh
   shell: /bin/sh "{{ root_sh }}"
-
-
