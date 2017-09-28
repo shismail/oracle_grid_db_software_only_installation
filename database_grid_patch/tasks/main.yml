@@ -1,0 +1,36 @@
+- name: Copy OPatch installer files
+  copy: src={{ software_directory }}/{{ item }} dest='{{ software_directory }}/'
+    owner={{ oracle_install_user }}
+    group={{ oracle_install_group }}
+    mode=775
+  with_items:
+       - p6880880_121010_Linux-x86-64.zip
+  
+- name: Copy grid patch installer files
+  copy: src={{ software_directory }}/{{ item }} dest='{{ software_directory }}/'
+  with_items:
+       - p23273629_121020_Linux-x86-64.zip
+
+- name: remove OPatch
+  file: path={{ grid_home }}/OPatch/ state=absent
+
+- name: Extract OPatch
+  become_user: "{{ oracle_install_user }}"
+  command: 'unzip {{ software_directory }}/{{ item }} -d {{ grid_home }}/'
+  with_items:
+       - p6880880_121010_Linux-x86-64.zip
+
+- name: Change permissions for OPatch
+  command: 'chown -R {{ oracle_install_user }}:{{ oracle_install_group }} {{ grid_home }}/OPatch'
+
+- name: Extract grid patch
+  command: 'unzip {{ software_directory }}/{{ item }} -d {{ software_directory }}/'
+  with_items:
+       - p23273629_121020_Linux-x86-64.zip
+  become_user: "{{ oracle_install_user }}"
+
+- name: prepatch - Unlock binaries
+  command: {{ grid_home }}/perl/bin/perl -I{{ grid_home }}/perl/lib -I{{ grid_home }}/crs/install {{ grid_home }}/crs/install/roothas.pl -prepatch
+
+- name: Apply PSU to GI (v12.1) (Master node)
+  command: "{{ grid_home }}/OPatch/opatchauto apply {{ software_directory }}/23273629 -oh {{ grid_home }}"
